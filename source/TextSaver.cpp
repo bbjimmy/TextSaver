@@ -1,17 +1,30 @@
 /* 
 **
-** A simple screensaver, displays the text "BeOS" at random locations.
+** A simple screensaver, displays the text at random locations.
 **
 ** Version: 2.0
 **
 ** 
-** Copyright (c) 2002 Marcus Overhagen, 2004 Jim Saxton ... FAT ELK SOFTWARE 
+** Copyright (c) 2002 Marcus Overhagen, 2004-2013 Jim Saxton
+ ... FAT ELK SOFTWARE 
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining 
+a copy of this software and associated documentation files (the "Software"), 
+to deal in the Software without restriction, including without limitation 
+the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+and/or sell copies of the Software, and to permit persons to whom the 
+Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+The above copyright notice and this permission notice shall be included 
+in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+DEALINGS IN THE SOFTWARE.
 */
 
 #include <ScreenSaver.h>
@@ -21,7 +34,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <stdlib.h>
 #include <String.h>
 #include <TextControl.h>
-
 
 
 BString 	fText;
@@ -41,7 +53,7 @@ public:
 	{
 		BMessage *msg;
 		SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
-		BRect r(10, 5, 300, 25);
+		BRect r(10, 5, 270, 25);
 		AddChild(new BStringView(r, B_EMPTY_STRING, "TextSaver by Jim Saxton"));
 		r.OffsetBy(0,25);
 		AddChild(new BStringView(r, B_EMPTY_STRING, "based on:"));
@@ -121,7 +133,7 @@ ScreenSaver::ScreenSaver(BMessage *archive, image_id id) :
 	//fText.SetTo("Haiku");
 	
 	archive->FindString("text",&fText);
-	if(fText=="") fText.SetTo("Haiku!");
+	if(fText=="") fText.SetTo("Your Text");
 	
 }
 
@@ -145,15 +157,14 @@ ScreenSaver::StartSaver(BView *view, bool preview)
 {
 	// save view dimensions and preview mode
 	fIsPreview = preview;
-	fSizeX = view->Bounds().Width();
+	fSizeX = view->Bounds().Width() -40;
 	fSizeY = view->Bounds().Height();
 	
 	// set a new font, about 1/8th of view height, and bold
 	BFont font;
 	view->GetFont(&font);
-	font.SetSize(fSizeY / 8);
-	font.SetFace(B_BOLD_FACE);
-	view->SetFont(&font);
+	//font.SetSize(fSizeY / 8);
+	
 	
 	// find out space needed for text display
 	BRect rect;
@@ -161,6 +172,13 @@ ScreenSaver::StartSaver(BView *view, bool preview)
 	delta.nonspace = 0;
 	delta.space = 0;
 	const char* x=fText.String();
+	int32 chars = fText.CountChars();
+	font.SetSize(fSizeY/chars);
+	if (chars > 20)
+	font.SetSize(25);
+	font.SetFace(B_BOLD_FACE);
+	view->SetFont(&font);
+	
 	font.GetBoundingBoxesForStrings(&(x),1,B_SCREEN_METRIC,&delta,&rect);
 	fTextHeight = rect.Height();
 	fTextWith = rect.Width();
@@ -190,7 +208,16 @@ ScreenSaver::Draw(BView *view, int32 frame)
 	}
 
 	// find some new text coordinates
-	fX = rand() % int(fSizeX - fTextWith);
+	
+	float shear = 60.0;
+	
+	BFont font;
+	float ofset=rand()%70;
+	shear=shear+ofset;
+	font.SetShear(shear);
+	view->SetFont(&font, B_FONT_SHEAR);
+	
+	fX = rand() % int(fSizeX - fTextWith) + 20;
 	fY = rand() % int(fSizeY - fTextHeight - (fIsPreview ? 2 : 20)) + fTextHeight;
 
 	// draw new text
@@ -207,6 +234,9 @@ ScreenSaver::Draw(BView *view, int32 frame)
 	{
 	red=255;
 	}
+	
+	
+	
 	view->SetHighColor(red,green,blue);
 	view->DrawString(fText.String(),BPoint(fX,fY));
 
