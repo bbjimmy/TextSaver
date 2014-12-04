@@ -1,7 +1,7 @@
 NAME= ../TextSaver
 TYPE= SHARED
 SRCS= TextSaver.cpp
-RSRCS=
+RSRCS= icon.rsrc
 LIBS= /boot/system/lib/libbe.so /boot/system/lib/libroot.so /boot/system/lib/libscreensaver.so
 LIBPATHS=
 SYSTEM_INCLUDE_PATHS= /boot/develop/headers/be /boot/develop/headers/cpp /boot/develop/headers/posix /boot/develop/lib /boot/beos/system/lib
