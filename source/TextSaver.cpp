@@ -200,7 +200,7 @@ ScreenSaver::Draw(BView *view, int32 frame)
 		// fill with black on first frame
 		view->SetLowColor(0, 0, 0); 
 		view->FillRect(view->Bounds(), B_SOLID_LOW); 
-		clear=false;
+		//clear=false;
 	} else {
 		// erase old text on all other frames
 		view->SetHighColor(0,0,0);
